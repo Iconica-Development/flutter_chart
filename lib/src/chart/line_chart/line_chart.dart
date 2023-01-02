@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chart/flutter_chart.dart';
 import 'package:flutter_chart/src/chart/line_chart/painter.dart';
 
-const int kAxis = 30;
-
 class LineChart extends StatefulWidget {
   const LineChart({
     super.key,
@@ -55,7 +53,7 @@ class _LineChartState extends State<LineChart> {
   @override
   Widget build(BuildContext context) {
     var horizontalGap = (widget.width -
-            kAxis -
+            widget.chartTheme.yAxisWidth -
             textSizes[(widget.maxX?.toInt().toString().length ??
                             widget.width.toInt().toString().length) -
                         1]
@@ -64,7 +62,7 @@ class _LineChartState extends State<LineChart> {
         widget.chartTheme.rasterStyle.horizontalGaps;
 
     var verticalGap =
-        (widget.height - kAxis) / widget.chartTheme.rasterStyle.verticalGaps;
+        (widget.height - widget.chartTheme.xAxisHeight) / widget.chartTheme.rasterStyle.verticalGaps;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,7 +71,7 @@ class _LineChartState extends State<LineChart> {
             widget.chartTheme.axisBuilder!.yAxisBuilder != null)
           SizedBox(
             height: widget.height,
-            width: max(kAxis - textSizes.first.width / 2, 0),
+            width: max(widget.chartTheme.yAxisWidth - textSizes.first.width / 2, 0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -89,7 +87,7 @@ class _LineChartState extends State<LineChart> {
                       right: 10,
                     ),
                     child: SizedBox(
-                      width: max(kAxis - textSizes.first.width / 2, 0),
+                      width: max(widget.chartTheme.yAxisWidth - textSizes.first.width / 2, 0),
                       child: widget.chartTheme.axisBuilder!.yAxisBuilder!(
                         context,
                         i,
@@ -113,11 +111,11 @@ class _LineChartState extends State<LineChart> {
               ),
               width: widget.chartTheme.axisBuilder != null &&
                       widget.chartTheme.axisBuilder!.yAxisBuilder != null
-                  ? widget.width - kAxis
+                  ? widget.width - widget.chartTheme.yAxisWidth
                   : widget.width,
               height: widget.chartTheme.axisBuilder != null &&
                       widget.chartTheme.axisBuilder!.xAxisBuilder != null
-                  ? widget.height - (kAxis - textSizes.first.height / 2)
+                  ? widget.height - (widget.chartTheme.xAxisHeight - textSizes.first.height / 2)
                   : widget.height,
               child: MouseRegion(
                 onHover: onHover,
@@ -145,7 +143,7 @@ class _LineChartState extends State<LineChart> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    for (int i = 0;
+                    for (var i = 0;
                         i <= widget.chartTheme.rasterStyle.horizontalGaps;
                         i++)
                       Padding(
@@ -225,8 +223,8 @@ class _LineChartState extends State<LineChart> {
                   box.size.width,
                   widget.maxX ?? box.size.height,
                   widget.maxY ?? box.size.width);
-          var pointX = translatedCoordinates.dx + kAxis;
-          var pointY = translatedCoordinates.dy - kAxis;
+          var pointX = translatedCoordinates.dx + widget.chartTheme.yAxisWidth;
+          var pointY = translatedCoordinates.dy - widget.chartTheme.xAxisHeight;
           var pointSize = line.theme.pointStyle.size ?? 10;
           var pointerRadius = (pointSize / 2);
 
