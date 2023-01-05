@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_chart/src/models/axis/axis_builder.dart';
 import 'package:flutter_chart/src/models/raster/raster_style.dart';
 
@@ -15,10 +16,14 @@ class ChartTheme {
   /// The width of the yAxis where the labels are drawn
   final double yAxisWidth;
 
+  /// Axis text style used for calculating the size of the labels
+  final TextStyle? axisTextStyle;
+
   const ChartTheme({
     this.xAxisHeight = 30,
     this.yAxisWidth = 30,
     this.axisBuilder,
+    this.axisTextStyle,
     this.rasterStyle = const RasterStyle(),
   });
 }

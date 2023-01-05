@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 class ChartPoint {
   /// X coordinate.
   final double x;
+
   /// Y coordinate.
   final double y;
+
   /// Label.
   final String? label;
 

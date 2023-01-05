@@ -44,7 +44,7 @@ class _LineChartState extends State<LineChart> {
         (widget.maxX ?? widget.width.toInt()).toString().length,
         (index) => calculateTextSize(
           '0' * (index + 1),
-          const TextStyle(fontSize: 10),
+          widget.chartTheme.axisTextStyle ?? const TextStyle(fontSize: 10),
         ),
       );
     }
@@ -61,8 +61,8 @@ class _LineChartState extends State<LineChart> {
                 2) /
         widget.chartTheme.rasterStyle.horizontalGaps;
 
-    var verticalGap =
-        (widget.height - widget.chartTheme.xAxisHeight) / widget.chartTheme.rasterStyle.verticalGaps;
+    var verticalGap = (widget.height - widget.chartTheme.xAxisHeight) /
+        widget.chartTheme.rasterStyle.verticalGaps;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,7 +71,8 @@ class _LineChartState extends State<LineChart> {
             widget.chartTheme.axisBuilder!.yAxisBuilder != null)
           SizedBox(
             height: widget.height,
-            width: max(widget.chartTheme.yAxisWidth - textSizes.first.width / 2, 0),
+            width: max(
+                widget.chartTheme.yAxisWidth - textSizes.first.width / 2, 0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -87,7 +88,10 @@ class _LineChartState extends State<LineChart> {
                       right: 10,
                     ),
                     child: SizedBox(
-                      width: max(widget.chartTheme.yAxisWidth - textSizes.first.width / 2, 0),
+                      width: max(
+                          widget.chartTheme.yAxisWidth -
+                              textSizes.first.width / 2,
+                          0),
                       child: widget.chartTheme.axisBuilder!.yAxisBuilder!(
                         context,
                         i,
@@ -115,7 +119,9 @@ class _LineChartState extends State<LineChart> {
                   : widget.width,
               height: widget.chartTheme.axisBuilder != null &&
                       widget.chartTheme.axisBuilder!.xAxisBuilder != null
-                  ? widget.height - (widget.chartTheme.xAxisHeight - textSizes.first.height / 2)
+                  ? widget.height -
+                      (widget.chartTheme.xAxisHeight -
+                          textSizes.first.height / 2)
                   : widget.height,
               child: MouseRegion(
                 onHover: onHover,
