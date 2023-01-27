@@ -9,7 +9,7 @@ class RasterStyle {
   /// Raster horizontalGaps
   final double horizontalGaps;
 
-  /// Raster verticalGaps
+  /// Raster verticalGaps, this should be the same as the amount of labels in the yAxis to preserve alignment
   final double verticalGaps;
 
   /// Raster stroke width

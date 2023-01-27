@@ -68,7 +68,7 @@ class _LineChartState extends State<LineChart> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (widget.chartTheme.axisBuilder != null &&
-            widget.chartTheme.axisBuilder!.yAxisBuilder != null)
+            widget.chartTheme.axisBuilder!.yAxisBuilder != null) ...[
           SizedBox(
             height: widget.height,
             width: max(
@@ -85,11 +85,12 @@ class _LineChartState extends State<LineChart> {
                               widget.chartTheme.rasterStyle.verticalGaps.toInt()
                           ? 0
                           : verticalGap - textSizes.first.height,
-                      right: 10,
+                      right: widget.chartTheme.yAxisPaddingRight,
                     ),
                     child: SizedBox(
                       width: max(
                           widget.chartTheme.yAxisWidth -
+                              widget.chartTheme.yAxisPaddingRight -
                               textSizes.first.width / 2,
                           0),
                       child: widget.chartTheme.axisBuilder!.yAxisBuilder!(
@@ -105,6 +106,7 @@ class _LineChartState extends State<LineChart> {
               ],
             ),
           ),
+        ],
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -141,17 +143,19 @@ class _LineChartState extends State<LineChart> {
               ),
             ),
             if (widget.chartTheme.axisBuilder != null &&
-                widget.chartTheme.axisBuilder!.xAxisBuilder != null)
+                widget.chartTheme.axisBuilder!.xAxisBuilder != null) ...[
               Container(
                 margin: EdgeInsets.only(
-                  top: 10 - textSizes.first.height / 2,
+                  top: max(
+                      widget.chartTheme.xAxisHeight - textSizes.first.height,
+                      0),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     for (var i = 0;
                         i <= widget.chartTheme.rasterStyle.horizontalGaps;
-                        i++)
+                        i++) ...[
                       Padding(
                         padding: EdgeInsets.only(
                           right: i ==
@@ -184,20 +188,19 @@ class _LineChartState extends State<LineChart> {
                                               .width /
                                           2),
                         ),
-                        child: SizedBox(
-                          height: 20,
-                          child: widget.chartTheme.axisBuilder!.xAxisBuilder!(
-                            context,
-                            i,
-                            (widget.maxX ?? widget.width) /
-                                widget.chartTheme.rasterStyle.horizontalGaps *
-                                i,
-                          ),
+                        child: widget.chartTheme.axisBuilder!.xAxisBuilder!(
+                          context,
+                          i,
+                          (widget.maxX ?? widget.width) /
+                              widget.chartTheme.rasterStyle.horizontalGaps *
+                              i,
                         ),
                       ),
+                    ],
                   ],
                 ),
               ),
+            ],
           ],
         ),
       ],

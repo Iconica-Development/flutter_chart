@@ -35,13 +35,14 @@ class _MyHomePageState extends State<MyHomePage> {
   Line line(int offset) {
     return Line(
       points: [
-        for (int i = 0; i < 500; i++)
+        for (int i = 0; i < 500; i++) ...[
           ChartPoint(
             i.toDouble(),
             50 * sin(i.toDouble() / 10) + offset,
             label:
                 '$i: ${(50 * sin(i.toDouble() / 10) + 100).toStringAsFixed(1)}',
           ),
+        ],
       ],
       shouldDrawPath: true,
       shouldDrawPoints: true,
@@ -75,6 +76,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    
+    var labelStyle = const TextStyle(
+      color: Colors.white,
+      fontSize: 15,
+    );
     return Scaffold(
       backgroundColor: const Color(0xff1D1E22),
       appBar: AppBar(
@@ -94,27 +100,25 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: LineChart(
+                key: ValueKey(MediaQuery.of(context).size),
                 height: 270,
                 width: MediaQuery.of(context).size.width - 80,
                 chartTheme: ChartTheme(
+                  axisTextStyle: labelStyle,
+                  yAxisWidth: 60,
+                  xAxisHeight: 20,
                   axisBuilder: AxisBuilder(
                     xAxisBuilder: (context, index, value) {
                       return Text(
                         value.toStringAsFixed(0),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                        ),
+                        style: labelStyle,
                       );
                     },
                     yAxisBuilder: (context, index, value) {
                       return Text(
                         value.toStringAsFixed(0),
                         textAlign: TextAlign.end,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                        ),
+                        style: labelStyle,
                       );
                     },
                   ),

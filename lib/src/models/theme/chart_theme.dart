@@ -16,12 +16,16 @@ class ChartTheme {
   /// The width of the yAxis where the labels are drawn
   final double yAxisWidth;
 
+  /// The padding right of the yAxis where the labels are drawn
+  final double yAxisPaddingRight;
+
   /// Axis text style used for calculating the size of the labels
   final TextStyle? axisTextStyle;
 
   const ChartTheme({
     this.xAxisHeight = 30,
     this.yAxisWidth = 30,
+    this.yAxisPaddingRight = 10,
     this.axisBuilder,
     this.axisTextStyle,
     this.rasterStyle = const RasterStyle(),
