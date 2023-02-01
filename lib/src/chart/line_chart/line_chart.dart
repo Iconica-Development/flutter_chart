@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chart/flutter_chart.dart';
 import 'package:flutter_chart/src/chart/line_chart/painter.dart';
 
-const int kAxis = 30;
-
 class LineChart extends StatefulWidget {
   const LineChart({
     super.key,
@@ -46,7 +44,7 @@ class _LineChartState extends State<LineChart> {
         (widget.maxX ?? widget.width.toInt()).toString().length,
         (index) => calculateTextSize(
           '0' * (index + 1),
-          const TextStyle(fontSize: 10),
+          widget.chartTheme.axisTextStyle ?? const TextStyle(fontSize: 10),
         ),
       );
     }
@@ -55,25 +53,33 @@ class _LineChartState extends State<LineChart> {
   @override
   Widget build(BuildContext context) {
     var horizontalGap = (widget.width -
-            kAxis -
+            widget.chartTheme.yAxisWidth -
             textSizes[(widget.maxX?.toInt().toString().length ??
                             widget.width.toInt().toString().length) -
                         1]
                     .width /
                 2) /
         widget.chartTheme.rasterStyle.horizontalGaps;
-
-    var verticalGap =
-        (widget.height - kAxis) / widget.chartTheme.rasterStyle.verticalGaps;
+    var graphHeight = (widget.chartTheme.axisBuilder != null &&
+                widget.chartTheme.axisBuilder!.xAxisBuilder != null
+            ? widget.height - widget.chartTheme.xAxisHeight
+            : widget.height) -
+        textSizes.first.height / 2;
+    var graphWidth = (widget.chartTheme.axisBuilder != null &&
+                widget.chartTheme.axisBuilder!.yAxisBuilder != null
+            ? widget.width - widget.chartTheme.yAxisWidth
+            : widget.width) -
+        textSizes.first.width / 2;
+    var verticalGap = graphHeight / widget.chartTheme.rasterStyle.verticalGaps;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (widget.chartTheme.axisBuilder != null &&
-            widget.chartTheme.axisBuilder!.yAxisBuilder != null)
+            widget.chartTheme.axisBuilder!.yAxisBuilder != null) ...[
           SizedBox(
-            height: widget.height,
-            width: max(kAxis - textSizes.first.width / 2, 0),
+            width: max(
+                widget.chartTheme.yAxisWidth - textSizes.first.width / 2, 0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -85,11 +91,18 @@ class _LineChartState extends State<LineChart> {
                       top: i ==
                               widget.chartTheme.rasterStyle.verticalGaps.toInt()
                           ? 0
-                          : verticalGap - textSizes.first.height,
-                      right: 10,
+                          : graphHeight /
+                                  widget.chartTheme.rasterStyle.verticalGaps
+                                      .toInt() -
+                              textSizes.first.height,
+                      right: widget.chartTheme.yAxisPaddingRight,
                     ),
                     child: SizedBox(
-                      width: max(kAxis - textSizes.first.width / 2, 0),
+                      width: max(
+                          widget.chartTheme.yAxisWidth -
+                              widget.chartTheme.yAxisPaddingRight -
+                              textSizes.first.width / 2,
+                          0),
                       child: widget.chartTheme.axisBuilder!.yAxisBuilder!(
                         context,
                         i,
@@ -103,24 +116,20 @@ class _LineChartState extends State<LineChart> {
               ],
             ),
           ),
+        ],
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: EdgeInsets.only(
+              margin: EdgeInsets.only(
                 top: textSizes.first.height / 2,
                 left: textSizes.first.width / 2,
               ),
-              width: widget.chartTheme.axisBuilder != null &&
-                      widget.chartTheme.axisBuilder!.yAxisBuilder != null
-                  ? widget.width - kAxis
-                  : widget.width,
-              height: widget.chartTheme.axisBuilder != null &&
-                      widget.chartTheme.axisBuilder!.xAxisBuilder != null
-                  ? widget.height - (kAxis - textSizes.first.height / 2)
-                  : widget.height,
+              width: graphWidth,
+              height: graphHeight,
               child: MouseRegion(
-                onHover: onHover,
+                onHover: (event) =>
+                    onHover(event, Size(graphWidth, graphHeight)),
                 child: ClipRRect(
                   child: CustomPaint(
                     painter: LineChartPainter(
@@ -137,17 +146,19 @@ class _LineChartState extends State<LineChart> {
               ),
             ),
             if (widget.chartTheme.axisBuilder != null &&
-                widget.chartTheme.axisBuilder!.xAxisBuilder != null)
+                widget.chartTheme.axisBuilder!.xAxisBuilder != null) ...[
               Container(
                 margin: EdgeInsets.only(
-                  top: 10 - textSizes.first.height / 2,
+                  top: max(
+                      widget.chartTheme.xAxisHeight - textSizes.first.height,
+                      0),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    for (int i = 0;
+                    for (var i = 0;
                         i <= widget.chartTheme.rasterStyle.horizontalGaps;
-                        i++)
+                        i++) ...[
                       Padding(
                         padding: EdgeInsets.only(
                           right: i ==
@@ -180,64 +191,48 @@ class _LineChartState extends State<LineChart> {
                                               .width /
                                           2),
                         ),
-                        child: SizedBox(
-                          height: 20,
-                          child: widget.chartTheme.axisBuilder!.xAxisBuilder!(
-                            context,
-                            i,
-                            (widget.maxX ?? widget.width) /
-                                widget.chartTheme.rasterStyle.horizontalGaps *
-                                i,
-                          ),
+                        child: widget.chartTheme.axisBuilder!.xAxisBuilder!(
+                          context,
+                          i,
+                          (widget.maxX ?? widget.width) /
+                              widget.chartTheme.rasterStyle.horizontalGaps *
+                              i,
                         ),
                       ),
+                    ],
                   ],
                 ),
               ),
+            ],
           ],
         ),
       ],
     );
   }
 
-  Size calculateTextSize(String text, TextStyle style) {
-    return (TextPainter(
-      text: TextSpan(text: text, style: style),
-      textDirection: TextDirection.ltr,
-    )..layout())
-        .size;
-  }
-
-  void onHover(PointerHoverEvent event) {
-    final RenderBox box = context.findRenderObject() as RenderBox;
-    final Offset localOffset = box.globalToLocal(event.position);
-    final double x = localOffset.dx;
-    final double y = localOffset.dy;
-
+  void onHover(PointerHoverEvent event, Size chartArea) {
     ChartPoint? point;
-
     for (var line in lines) {
       point = line.points.firstWhere(
         (point) {
-          final Offset translatedCoordinates =
-              point.translatedCoordinatesWithMax(
-                  box.size.height,
-                  box.size.width,
-                  widget.maxX ?? box.size.height,
-                  widget.maxY ?? box.size.width);
-          var pointX = translatedCoordinates.dx + kAxis;
-          var pointY = translatedCoordinates.dy - kAxis;
+          // calculate the X and Y coordinates of the point
+          final Offset translatedPoint = point.translatedCoordinatesWithMax(
+              chartArea.height,
+              chartArea.width,
+              widget.maxX ?? chartArea.height,
+              widget.maxY ?? chartArea.width);
           var pointSize = line.theme.pointStyle.size ?? 10;
           var pointerRadius = (pointSize / 2);
-
-          return x >= pointX - pointerRadius - widget.labelDetectionZone &&
-              x <= pointX + pointerRadius + widget.labelDetectionZone &&
-              y >= pointY - pointerRadius - widget.labelDetectionZone &&
-              y <= pointY + pointerRadius + widget.labelDetectionZone;
+          var maximumDistance = pointerRadius + widget.labelDetectionZone;
+          // check if the point is within the detection zone of the event
+          return (event.localPosition.dx - translatedPoint.dx).abs() <=
+                  maximumDistance &&
+              (event.localPosition.dy - translatedPoint.dy).abs() <=
+                  maximumDistance;
         },
         orElse: () => const ChartPoint(double.infinity, double.infinity),
       );
-
+      // remove the highlight from all lines except but store the point that was found
       if (point.x != double.infinity && point.y != double.infinity) {
         setState(() {
           lines = lines.map((e) {
@@ -251,6 +246,8 @@ class _LineChartState extends State<LineChart> {
       }
     }
 
+    // remove the highlight from all lines except the one that contains the point
+    // this is to make sure that the line resets when the mouse leaves the detection zone
     setState(() {
       lines = lines.map((e) {
         if (e.highlightedPoint == point) {
@@ -261,4 +258,12 @@ class _LineChartState extends State<LineChart> {
       }).toList();
     });
   }
+}
+
+Size calculateTextSize(String text, TextStyle style) {
+  return (TextPainter(
+    text: TextSpan(text: text, style: style),
+    textDirection: TextDirection.ltr,
+  )..layout())
+      .size;
 }

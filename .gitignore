@@ -33,6 +33,7 @@ example/android
 example/ios
 example/.dart_tool
 example/.packages
+example/.metadata
 example/build
 example/macos
 example/windows
