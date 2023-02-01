@@ -207,14 +207,6 @@ class _LineChartState extends State<LineChart> {
     );
   }
 
-  Size calculateTextSize(String text, TextStyle style) {
-    return (TextPainter(
-      text: TextSpan(text: text, style: style),
-      textDirection: TextDirection.ltr,
-    )..layout())
-        .size;
-  }
-
   void onHover(PointerHoverEvent event) {
     final RenderBox box = context.findRenderObject() as RenderBox;
     final Offset localOffset = box.globalToLocal(event.position);
@@ -268,4 +260,12 @@ class _LineChartState extends State<LineChart> {
       }).toList();
     });
   }
+}
+
+Size calculateTextSize(String text, TextStyle style) {
+  return (TextPainter(
+    text: TextSpan(text: text, style: style),
+    textDirection: TextDirection.ltr,
+  )..layout())
+      .size;
 }
