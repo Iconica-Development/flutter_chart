@@ -128,7 +128,8 @@ class _LineChartState extends State<LineChart> {
               width: graphWidth,
               height: graphHeight,
               child: MouseRegion(
-                onHover: onHover,
+                onHover: (event) =>
+                    onHover(event, Size(graphWidth, graphHeight)),
                 child: ClipRRect(
                   child: CustomPaint(
                     painter: LineChartPainter(
@@ -209,36 +210,29 @@ class _LineChartState extends State<LineChart> {
     );
   }
 
-  void onHover(PointerHoverEvent event) {
-    final RenderBox box = context.findRenderObject() as RenderBox;
-    final Offset localOffset = box.globalToLocal(event.position);
-    final double x = localOffset.dx;
-    final double y = localOffset.dy;
-
+  void onHover(PointerHoverEvent event, Size chartArea) {
     ChartPoint? point;
-
     for (var line in lines) {
       point = line.points.firstWhere(
         (point) {
-          final Offset translatedCoordinates =
-              point.translatedCoordinatesWithMax(
-                  box.size.height,
-                  box.size.width,
-                  widget.maxX ?? box.size.height,
-                  widget.maxY ?? box.size.width);
-          var pointX = translatedCoordinates.dx + widget.chartTheme.yAxisWidth;
-          var pointY = translatedCoordinates.dy - widget.chartTheme.xAxisHeight;
+          // calculate the X and Y coordinates of the point
+          final Offset translatedPoint = point.translatedCoordinatesWithMax(
+              chartArea.height,
+              chartArea.width,
+              widget.maxX ?? chartArea.height,
+              widget.maxY ?? chartArea.width);
           var pointSize = line.theme.pointStyle.size ?? 10;
           var pointerRadius = (pointSize / 2);
-
-          return x >= pointX - pointerRadius - widget.labelDetectionZone &&
-              x <= pointX + pointerRadius + widget.labelDetectionZone &&
-              y >= pointY - pointerRadius - widget.labelDetectionZone &&
-              y <= pointY + pointerRadius + widget.labelDetectionZone;
+          var maximumDistance = pointerRadius + widget.labelDetectionZone;
+          // check if the point is within the detection zone of the event
+          return (event.localPosition.dx - translatedPoint.dx).abs() <=
+                  maximumDistance &&
+              (event.localPosition.dy - translatedPoint.dy).abs() <=
+                  maximumDistance;
         },
         orElse: () => const ChartPoint(double.infinity, double.infinity),
       );
-
+      // remove the highlight from all lines except but store the point that was found
       if (point.x != double.infinity && point.y != double.infinity) {
         setState(() {
           lines = lines.map((e) {
@@ -252,6 +246,8 @@ class _LineChartState extends State<LineChart> {
       }
     }
 
+    // remove the highlight from all lines except the one that contains the point
+    // this is to make sure that the line resets when the mouse leaves the detection zone
     setState(() {
       lines = lines.map((e) {
         if (e.highlightedPoint == point) {
