@@ -95,10 +95,10 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.black,
               borderRadius: BorderRadius.circular(10),
             ),
-            height: 300,
+            height: 270,
             width: MediaQuery.of(context).size.width - 40,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: EdgeInsets.zero,
               child: LineChart(
                 key: ValueKey(MediaQuery.of(context).size),
                 height: 270,

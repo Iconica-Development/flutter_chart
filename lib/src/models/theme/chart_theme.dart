@@ -25,7 +25,7 @@ class ChartTheme {
   const ChartTheme({
     this.xAxisHeight = 30,
     this.yAxisWidth = 30,
-    this.yAxisPaddingRight = 10,
+    this.yAxisPaddingRight = 0,
     this.axisBuilder,
     this.axisTextStyle,
     this.rasterStyle = const RasterStyle(),

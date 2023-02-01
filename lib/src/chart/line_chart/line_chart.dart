@@ -60,9 +60,17 @@ class _LineChartState extends State<LineChart> {
                     .width /
                 2) /
         widget.chartTheme.rasterStyle.horizontalGaps;
-
-    var verticalGap = (widget.height - widget.chartTheme.xAxisHeight) /
-        widget.chartTheme.rasterStyle.verticalGaps;
+    var graphHeight = (widget.chartTheme.axisBuilder != null &&
+                widget.chartTheme.axisBuilder!.xAxisBuilder != null
+            ? widget.height - widget.chartTheme.xAxisHeight
+            : widget.height) -
+        textSizes.first.height / 2;
+    var graphWidth = (widget.chartTheme.axisBuilder != null &&
+                widget.chartTheme.axisBuilder!.yAxisBuilder != null
+            ? widget.width - widget.chartTheme.yAxisWidth
+            : widget.width) -
+        textSizes.first.width / 2;
+    var verticalGap = graphHeight / widget.chartTheme.rasterStyle.verticalGaps;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +78,6 @@ class _LineChartState extends State<LineChart> {
         if (widget.chartTheme.axisBuilder != null &&
             widget.chartTheme.axisBuilder!.yAxisBuilder != null) ...[
           SizedBox(
-            height: widget.height,
             width: max(
                 widget.chartTheme.yAxisWidth - textSizes.first.width / 2, 0),
             child: Column(
@@ -84,7 +91,10 @@ class _LineChartState extends State<LineChart> {
                       top: i ==
                               widget.chartTheme.rasterStyle.verticalGaps.toInt()
                           ? 0
-                          : verticalGap - textSizes.first.height,
+                          : graphHeight /
+                                  widget.chartTheme.rasterStyle.verticalGaps
+                                      .toInt() -
+                              textSizes.first.height,
                       right: widget.chartTheme.yAxisPaddingRight,
                     ),
                     child: SizedBox(
@@ -111,20 +121,12 @@ class _LineChartState extends State<LineChart> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: EdgeInsets.only(
+              margin: EdgeInsets.only(
                 top: textSizes.first.height / 2,
                 left: textSizes.first.width / 2,
               ),
-              width: widget.chartTheme.axisBuilder != null &&
-                      widget.chartTheme.axisBuilder!.yAxisBuilder != null
-                  ? widget.width - widget.chartTheme.yAxisWidth
-                  : widget.width,
-              height: widget.chartTheme.axisBuilder != null &&
-                      widget.chartTheme.axisBuilder!.xAxisBuilder != null
-                  ? widget.height -
-                      (widget.chartTheme.xAxisHeight -
-                          textSizes.first.height / 2)
-                  : widget.height,
+              width: graphWidth,
+              height: graphHeight,
               child: MouseRegion(
                 onHover: onHover,
                 child: ClipRRect(
