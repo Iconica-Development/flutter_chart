@@ -24,8 +24,37 @@ class LineChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final double maxX = this.maxX ?? size.width;
-    final double maxY = this.maxY ?? size.height;
+    var maxX = this.maxX ?? size.width;
+    var maxY = this.maxY ?? size.height;
+
+    var rasterPaint = Paint()
+      ..color = rasterStyle.color
+      ..strokeWidth = rasterStyle.strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    if (shouldDrawRaster) {
+      if (rasterStyle.rasterType == RasterType.vertical ||
+          rasterStyle.rasterType == RasterType.horizontalAndVertical) {
+        for (var i = 0; i <= rasterStyle.horizontalGaps; i++) {
+          canvas.drawLine(
+            Offset(i * horizontalGap, 0),
+            Offset(i * horizontalGap, size.height),
+            rasterPaint,
+          );
+        }
+      }
+
+      if (rasterStyle.rasterType == RasterType.horizontal ||
+          rasterStyle.rasterType == RasterType.horizontalAndVertical) {
+        for (var i = 0; i <= rasterStyle.verticalGaps; i++) {
+          canvas.drawLine(
+            Offset(0, i * verticalGap),
+            Offset(size.width, i * verticalGap),
+            rasterPaint,
+          );
+        }
+      }
+    }
 
     for (var line in lines) {
       final pointPaint = Paint()
@@ -42,11 +71,6 @@ class LineChartPainter extends CustomPainter {
             line.theme.highlightedPointStyle.shape == PointShape.circle
                 ? StrokeCap.round
                 : StrokeCap.square;
-
-      final rasterPaint = Paint()
-        ..color = rasterStyle.color
-        ..strokeWidth = rasterStyle.strokeWidth
-        ..style = PaintingStyle.stroke;
 
       final linePaint = Paint()
         ..color = line.theme.lineStyle.color
@@ -67,30 +91,6 @@ class LineChartPainter extends CustomPainter {
             size.height,
           ),
         );
-      }
-
-      if (shouldDrawRaster) {
-        if (rasterStyle.rasterType == RasterType.vertical ||
-            rasterStyle.rasterType == RasterType.horizontalAndVertical) {
-          for (var i = 0; i <= rasterStyle.horizontalGaps; i++) {
-            canvas.drawLine(
-              Offset(i * horizontalGap, 0),
-              Offset(i * horizontalGap, size.height),
-              rasterPaint,
-            );
-          }
-        }
-
-        if (rasterStyle.rasterType == RasterType.horizontal ||
-            rasterStyle.rasterType == RasterType.horizontalAndVertical) {
-          for (var i = 0; i <= rasterStyle.verticalGaps; i++) {
-            canvas.drawLine(
-              Offset(0, i * verticalGap),
-              Offset(size.width, i * verticalGap),
-              rasterPaint,
-            );
-          }
-        }
       }
 
       if (line.shouldDrawPoints) {
@@ -386,11 +386,4 @@ class LineChartPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(LineChartPainter oldDelegate) => true;
-  // oldDelegate.lines != lines ||
-  // oldDelegate.maxX != maxX ||
-  // oldDelegate.maxY != maxY ||
-  // oldDelegate.rasterStyle != rasterStyle ||
-  // oldDelegate.shouldDrawRaster != shouldDrawRaster ||
-  // oldDelegate.horizontalGap != horizontalGap ||
-  // oldDelegate.verticalGap != verticalGap;
 }
