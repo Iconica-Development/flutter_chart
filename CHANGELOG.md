@@ -1,3 +1,7 @@
+## 0.0.3
+- Added option for second yAxis (right side)
+- Fixed bug where raster would be drawn over the lines
+
 ## 0.0.2
 
 - Added option to modify xAxis height and yAxis width

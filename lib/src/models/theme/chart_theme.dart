@@ -19,13 +19,21 @@ class ChartTheme {
   /// The padding right of the yAxis where the labels are drawn
   final double yAxisPaddingRight;
 
+  /// The width of the secondary yAxis where the labels are drawn
+  final double secondaryYAxisWidth;
+
+  /// The padding left of the secondary yAxis where the labels are drawn
+  final double secondaryYAxisPaddingLeft;
+
   /// Axis text style used for calculating the size of the labels
   final TextStyle? axisTextStyle;
 
   const ChartTheme({
     this.xAxisHeight = 30,
     this.yAxisWidth = 30,
+    this.secondaryYAxisWidth = 0,
     this.yAxisPaddingRight = 0,
+    this.secondaryYAxisPaddingLeft = 0,
     this.axisBuilder,
     this.axisTextStyle,
     this.rasterStyle = const RasterStyle(),
