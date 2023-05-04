@@ -7,7 +7,6 @@ import 'package:flutter_chart/src/chart/line_chart/painter.dart';
 
 class LineChart extends StatefulWidget {
   const LineChart({
-    super.key,
     required this.lines,
     required this.height,
     required this.width,
@@ -16,6 +15,7 @@ class LineChart extends StatefulWidget {
     this.maxY,
     this.shouldDrawRaster = true,
     this.labelDetectionZone = 10,
+    super.key,
   });
 
   final List<Line> lines;
@@ -129,7 +129,7 @@ class _LineChartState extends State<LineChart> {
               height: graphHeight,
               child: MouseRegion(
                 onHover: (event) =>
-                    onHover(event, Size(graphWidth, graphHeight)),
+                    _onHover(event, Size(graphWidth, graphHeight)),
                 child: ClipRRect(
                   child: CustomPaint(
                     painter: LineChartPainter(
@@ -206,11 +206,58 @@ class _LineChartState extends State<LineChart> {
             ],
           ],
         ),
+        // another y axis
+        if (widget.chartTheme.axisBuilder != null &&
+            widget.chartTheme.axisBuilder!.secondaryYAxisBuilder != null)
+          ...[
+            SizedBox(
+              width: max(
+                  widget.chartTheme.secondaryYAxisWidth - textSizes.first.width / 2, 0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  for (int i = widget.chartTheme.rasterStyle.verticalGaps
+                          .toInt();
+                      i >= 0;
+                      i--) ...[
+                    Padding(
+                      padding: EdgeInsets.only(
+                        top: i ==
+                                widget.chartTheme.rasterStyle.verticalGaps
+                                    .toInt()
+                            ? 0
+                            : graphHeight /
+                                    widget.chartTheme.rasterStyle.verticalGaps
+                                        .toInt() -
+                                textSizes.first.height,
+                        left: widget.chartTheme.secondaryYAxisPaddingLeft,
+                      ),
+                      child: SizedBox(
+                        width: max(
+                            widget.chartTheme.secondaryYAxisWidth -
+                                widget.chartTheme.secondaryYAxisPaddingLeft -
+                                textSizes.first.width / 2,
+                            0),
+                        child: widget.chartTheme.axisBuilder!
+                            .secondaryYAxisBuilder!(
+                          context,
+                          i,
+                          (widget.maxY ?? widget.height) /
+                              widget.chartTheme.rasterStyle.verticalGaps *
+                              i,
+                        ),
+                      ),
+                    ),
+                  ]
+                ],
+              ),
+            ),
+          ],
       ],
     );
   }
 
-  void onHover(PointerHoverEvent event, Size chartArea) {
+  void _onHover(PointerHoverEvent event, Size chartArea) {
     ChartPoint? point;
     for (var line in lines) {
       point = line.points.firstWhere(
