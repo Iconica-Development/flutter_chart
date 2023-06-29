@@ -2,6 +2,8 @@
 
 Flutter package for drawing charts
 
+![Example image of a simple chart](example.png)
+
 ## Setup
 
 To use this package, add `flutter_chart` as a dependency in your pubspec.yaml file.
