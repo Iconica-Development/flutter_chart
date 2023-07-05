@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Chart point.
+@immutable
 class ChartPoint {
   /// X coordinate.
   final double x;
@@ -41,4 +42,16 @@ class ChartPoint {
 
   @override
   int get hashCode => x.hashCode & y.hashCode & label.hashCode;
+
+  ChartPoint copyWith({
+    double? x,
+    double? y,
+    String? label,
+  }) {
+    return ChartPoint(
+      x ?? this.x,
+      y ?? this.y,
+      label: label ?? this.label,
+    );
+  }
 }

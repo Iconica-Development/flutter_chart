@@ -69,7 +69,9 @@ class _LineChartState extends State<LineChart> {
                 widget.chartTheme.axisBuilder!.yAxisBuilder != null
             ? widget.width - widget.chartTheme.yAxisWidth
             : widget.width) -
-        textSizes.first.width / 2;
+        ((widget.chartTheme.axisBuilder?.xAxisBuilder!(context, 0, 0).$2 ??
+                textSizes.first.width) /
+            2);
     var verticalGap = graphHeight / widget.chartTheme.rasterStyle.verticalGaps;
 
     return Row(
@@ -79,7 +81,12 @@ class _LineChartState extends State<LineChart> {
             widget.chartTheme.axisBuilder!.yAxisBuilder != null) ...[
           SizedBox(
             width: max(
-                widget.chartTheme.yAxisWidth - textSizes.first.width / 2, 0),
+                widget.chartTheme.yAxisWidth -
+                    ((widget.chartTheme.axisBuilder
+                                ?.xAxisBuilder!(context, 0, 0).$2 ??
+                            textSizes.first.width) /
+                        2),
+                0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -101,15 +108,22 @@ class _LineChartState extends State<LineChart> {
                       width: max(
                           widget.chartTheme.yAxisWidth -
                               widget.chartTheme.yAxisPaddingRight -
-                              textSizes.first.width / 2,
+                              ((widget.chartTheme.axisBuilder
+                                          ?.xAxisBuilder!(context, 0, 0).$2 ??
+                                      textSizes.first.width) /
+                                  2),
                           0),
-                      child: widget.chartTheme.axisBuilder!.yAxisBuilder!(
+                      child: widget
+                          .chartTheme
+                          .axisBuilder!
+                          .yAxisBuilder!(
                         context,
                         i,
                         (widget.maxY ?? widget.height) /
                             widget.chartTheme.rasterStyle.verticalGaps *
                             i,
-                      ),
+                      )
+                          .$1,
                     ),
                   ),
                 ]
@@ -123,7 +137,10 @@ class _LineChartState extends State<LineChart> {
             Container(
               margin: EdgeInsets.only(
                 top: textSizes.first.height / 2,
-                left: textSizes.first.width / 2,
+                left: ((widget.chartTheme.axisBuilder
+                            ?.xAxisBuilder!(context, 0, 0).$2 ??
+                        textSizes.first.width) /
+                    2),
               ),
               width: graphWidth,
               height: graphHeight,
@@ -150,8 +167,9 @@ class _LineChartState extends State<LineChart> {
               Container(
                 margin: EdgeInsets.only(
                   top: max(
-                      widget.chartTheme.xAxisHeight - textSizes.first.height,
-                      0),
+                    widget.chartTheme.xAxisHeight - textSizes.first.height,
+                    0,
+                  ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -165,39 +183,80 @@ class _LineChartState extends State<LineChart> {
                                   widget.chartTheme.rasterStyle.horizontalGaps
                               ? 0
                               : horizontalGap -
-                                  (textSizes[((widget.maxX ?? widget.width) /
-                                                          widget
-                                                              .chartTheme
-                                                              .rasterStyle
-                                                              .horizontalGaps *
-                                                          i)
-                                                      .floor()
-                                                      .toString()
-                                                      .length -
-                                                  1]
-                                              .width /
-                                          2 +
-                                      textSizes[((widget.maxX ??
-                                                              widget.width) /
-                                                          widget
-                                                              .chartTheme
-                                                              .rasterStyle
-                                                              .horizontalGaps *
-                                                          (i + 1))
-                                                      .floor()
-                                                      .toString()
-                                                      .length -
-                                                  1]
-                                              .width /
-                                          2),
+                                  ((widget
+                                                  .chartTheme
+                                                  .axisBuilder!
+                                                  .xAxisBuilder!(
+                                                context,
+                                                i,
+                                                (widget.maxX ?? widget.width) /
+                                                    widget
+                                                        .chartTheme
+                                                        .rasterStyle
+                                                        .horizontalGaps *
+                                                    i,
+                                              )
+                                                  .$2 ??
+                                              textSizes[((widget.maxX ??
+                                                                  widget
+                                                                      .width) /
+                                                              widget
+                                                                  .chartTheme
+                                                                  .rasterStyle
+                                                                  .horizontalGaps *
+                                                              i)
+                                                          .floor()
+                                                          .toString()
+                                                          .length -
+                                                      1]
+                                                  .width) /
+                                          2
+                                      // number we are at
+
+                                      +
+                                      (widget
+                                                  .chartTheme
+                                                  .axisBuilder!
+                                                  .xAxisBuilder!(
+                                                context,
+                                                i + 1,
+                                                (widget.maxX ?? widget.width) /
+                                                    widget
+                                                        .chartTheme
+                                                        .rasterStyle
+                                                        .horizontalGaps *
+                                                    (i + 1),
+                                              )
+                                                  .$2 ??
+                                              textSizes[((widget.maxX ??
+                                                                  widget
+                                                                      .width) /
+                                                              widget
+                                                                  .chartTheme
+                                                                  .rasterStyle
+                                                                  .horizontalGaps *
+                                                              (i + 1))
+                                                          .floor()
+                                                          .toString()
+                                                          .length -
+                                                      1]
+                                                  .width) /
+                                          2
+                                  // number we are going to
+
+                                  ),
                         ),
-                        child: widget.chartTheme.axisBuilder!.xAxisBuilder!(
+                        child: widget
+                            .chartTheme
+                            .axisBuilder!
+                            .xAxisBuilder!(
                           context,
                           i,
                           (widget.maxX ?? widget.width) /
                               widget.chartTheme.rasterStyle.horizontalGaps *
                               i,
-                        ),
+                        )
+                            .$1,
                       ),
                     ],
                   ],
@@ -208,51 +267,59 @@ class _LineChartState extends State<LineChart> {
         ),
         // another y axis
         if (widget.chartTheme.axisBuilder != null &&
-            widget.chartTheme.axisBuilder!.secondaryYAxisBuilder != null)
-          ...[
-            SizedBox(
-              width: max(
-                  widget.chartTheme.secondaryYAxisWidth - textSizes.first.width / 2, 0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  for (int i = widget.chartTheme.rasterStyle.verticalGaps
-                          .toInt();
-                      i >= 0;
-                      i--) ...[
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: i ==
-                                widget.chartTheme.rasterStyle.verticalGaps
-                                    .toInt()
-                            ? 0
-                            : graphHeight /
-                                    widget.chartTheme.rasterStyle.verticalGaps
-                                        .toInt() -
-                                textSizes.first.height,
-                        left: widget.chartTheme.secondaryYAxisPaddingLeft,
-                      ),
-                      child: SizedBox(
-                        width: max(
-                            widget.chartTheme.secondaryYAxisWidth -
-                                widget.chartTheme.secondaryYAxisPaddingLeft -
-                                textSizes.first.width / 2,
-                            0),
-                        child: widget.chartTheme.axisBuilder!
-                            .secondaryYAxisBuilder!(
-                          context,
-                          i,
-                          (widget.maxY ?? widget.height) /
-                              widget.chartTheme.rasterStyle.verticalGaps *
-                              i,
-                        ),
-                      ),
+            widget.chartTheme.axisBuilder!.secondaryYAxisBuilder != null) ...[
+          SizedBox(
+            width: max(
+                widget.chartTheme.secondaryYAxisWidth -
+                    ((widget.chartTheme.axisBuilder
+                                ?.xAxisBuilder!(context, 0, 0).$2 ??
+                            textSizes.first.width) /
+                        2),
+                0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                for (int i = widget.chartTheme.rasterStyle.verticalGaps.toInt();
+                    i >= 0;
+                    i--) ...[
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: i ==
+                              widget.chartTheme.rasterStyle.verticalGaps.toInt()
+                          ? 0
+                          : graphHeight /
+                                  widget.chartTheme.rasterStyle.verticalGaps
+                                      .toInt() -
+                              textSizes.first.height,
+                      left: widget.chartTheme.secondaryYAxisPaddingLeft,
                     ),
-                  ]
-                ],
-              ),
+                    child: SizedBox(
+                      width: max(
+                          widget.chartTheme.secondaryYAxisWidth -
+                              widget.chartTheme.secondaryYAxisPaddingLeft -
+                              ((widget.chartTheme.axisBuilder
+                                          ?.xAxisBuilder!(context, 0, 0).$2 ??
+                                      textSizes.first.width) /
+                                  2),
+                          0),
+                      child: widget
+                          .chartTheme
+                          .axisBuilder!
+                          .secondaryYAxisBuilder!(
+                        context,
+                        i,
+                        (widget.maxY ?? widget.height) /
+                            widget.chartTheme.rasterStyle.verticalGaps *
+                            i,
+                      )
+                          .$1,
+                    ),
+                  ),
+                ]
+              ],
             ),
-          ],
+          ),
+        ],
       ],
     );
   }
