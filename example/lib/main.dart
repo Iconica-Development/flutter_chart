@@ -76,7 +76,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    
     var labelStyle = const TextStyle(
       color: Colors.white,
       fontSize: 15,
@@ -109,21 +108,29 @@ class _MyHomePageState extends State<MyHomePage> {
                   xAxisHeight: 20,
                   axisBuilder: AxisBuilder(
                     xAxisBuilder: (context, index, value) {
-                      return Text(
-                        value.toStringAsFixed(0),
-                        style: labelStyle,
+                      return (
+                        Text(
+                          '-${value.toStringAsFixed(0)}',
+                          style: labelStyle,
+                        ),
+                        calculateTextSize(
+                                '-${value.toStringAsFixed(0)}', labelStyle)
+                            .width,
                       );
                     },
                     yAxisBuilder: (context, index, value) {
-                      return Text(
-                        value.toStringAsFixed(0),
-                        textAlign: TextAlign.end,
-                        style: labelStyle,
+                      return (
+                        Text(
+                          value.toStringAsFixed(0),
+                          textAlign: TextAlign.end,
+                          style: labelStyle,
+                        ),
+                        null
                       );
                     },
                   ),
                   rasterStyle: RasterStyle(
-                    horizontalGaps: 50,
+                    horizontalGaps: 20,
                     verticalGaps: 5,
                     color: Colors.grey.withOpacity(0.3),
                     rasterType: RasterType.horizontalAndVertical,

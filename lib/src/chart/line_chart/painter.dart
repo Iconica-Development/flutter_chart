@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -64,14 +65,6 @@ class LineChartPainter extends CustomPainter {
             ? StrokeCap.round
             : StrokeCap.square;
 
-      final highlightedPaint = Paint()
-        ..color = line.theme.highlightedPointStyle.color ?? Colors.red
-        ..strokeWidth = line.theme.highlightedPointStyle.size ?? 5
-        ..strokeCap =
-            line.theme.highlightedPointStyle.shape == PointShape.circle
-                ? StrokeCap.round
-                : StrokeCap.square;
-
       final linePaint = Paint()
         ..color = line.theme.lineStyle.color
         ..strokeWidth = line.theme.lineStyle.strokeWidth
@@ -101,19 +94,6 @@ class LineChartPainter extends CustomPainter {
                   size.height, size.width, maxX, maxY))
               .toList(),
           pointPaint,
-        );
-      }
-
-      if (line.shouldDrawHighlightedPoint && line.highlightedPoint != null) {
-        final Offset translatedCoordinates = line.highlightedPoint!
-            .translatedCoordinatesWithMax(size.height, size.width, maxX, maxY);
-        final double pointX = translatedCoordinates.dx;
-        final double pointY = translatedCoordinates.dy;
-
-        canvas.drawPoints(
-          PointMode.points,
-          [Offset(pointX, pointY)],
-          highlightedPaint,
         );
       }
 
@@ -324,64 +304,111 @@ class LineChartPainter extends CustomPainter {
           );
         }
       }
+    }
 
-      if (line.highlightedPoint != null) {
-        final textPainter = TextPainter(
-          text: TextSpan(
-            text: line.highlightedPoint!.label,
-            style: line.theme.labelBoxStyle.textStyle,
+    // draw the highlighted point and label
+    for (var line in lines.where((e) => e.highlightedPoint != null)) {
+      final textPainter = TextPainter(
+        text: TextSpan(
+          text: line.highlightedPoint!.label,
+          style: line.theme.labelBoxStyle.textStyle,
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      final Offset translatedCoordinates = line.highlightedPoint!
+          .translatedCoordinatesWithMax(size.height, size.width, maxX, maxY);
+
+      // Draw label box using labelBoxStyle
+      final labelBoxPaint = Paint()
+        ..color = line.theme.labelBoxStyle.backgroundColor
+        ..style = PaintingStyle.fill;
+
+      // Draw box with border
+      final labelBoxBorderPaint = Paint()
+        ..color = line.theme.labelBoxStyle.borderColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = line.theme.labelBoxStyle.borderWidth;
+      var labelPadding = 5.0;
+      var position =
+          getLabelPositionAndSize(translatedCoordinates, textPainter, size);
+      canvas.drawRect(
+        Rect.fromLTWH(
+          position.$1,
+          position.$2,
+          textPainter.width + labelPadding * 2,
+          textPainter.height + labelPadding * 2,
+        ),
+        labelBoxPaint,
+      );
+
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(
+            position.$1,
+            position.$2,
+            textPainter.width + labelPadding * 2,
+            textPainter.height + labelPadding * 2,
           ),
-          textDirection: TextDirection.ltr,
-        )..layout();
+          Radius.circular(line.theme.labelBoxStyle.borderRadius),
+        ),
+        labelBoxBorderPaint,
+      );
+
+      textPainter.paint(
+        canvas,
+        Offset(
+          position.$1 + labelPadding,
+          position.$2 + labelPadding,
+        ),
+      );
+
+      if (line.shouldDrawHighlightedPoint && line.highlightedPoint != null) {
+        final highlightedPaint = Paint()
+          ..color = line.theme.highlightedPointStyle.color ?? Colors.red
+          ..strokeWidth = line.theme.highlightedPointStyle.size ?? 5
+          ..strokeCap =
+              line.theme.highlightedPointStyle.shape == PointShape.circle
+                  ? StrokeCap.round
+                  : StrokeCap.square;
 
         final Offset translatedCoordinates = line.highlightedPoint!
             .translatedCoordinatesWithMax(size.height, size.width, maxX, maxY);
         final double pointX = translatedCoordinates.dx;
         final double pointY = translatedCoordinates.dy;
 
-        // Draw label box using labelBoxStyle
-        final labelBoxPaint = Paint()
-          ..color = line.theme.labelBoxStyle.backgroundColor
-          ..style = PaintingStyle.fill;
-
-        // Draw box with border
-        final labelBoxBorderPaint = Paint()
-          ..color = line.theme.labelBoxStyle.borderColor
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = line.theme.labelBoxStyle.borderWidth;
-
-        canvas.drawRect(
-          Rect.fromLTWH(
-            pointX - textPainter.width / 2 - 10,
-            pointY - textPainter.height - 30,
-            textPainter.width + 20,
-            textPainter.height + 10,
-          ),
-          labelBoxPaint,
-        );
-
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(
-            Rect.fromLTWH(
-              pointX - textPainter.width / 2 - 10,
-              pointY - textPainter.height - 30,
-              textPainter.width + 20,
-              textPainter.height + 10,
-            ),
-            Radius.circular(line.theme.labelBoxStyle.borderRadius),
-          ),
-          labelBoxBorderPaint,
-        );
-
-        textPainter.paint(
-          canvas,
-          Offset(
-            pointX - textPainter.width / 2,
-            pointY - textPainter.height - 25,
-          ),
+        canvas.drawPoints(
+          PointMode.points,
+          [Offset(pointX, pointY)],
+          highlightedPaint,
         );
       }
     }
+  }
+
+  (double left, double top) getLabelPositionAndSize(
+    Offset point,
+    TextPainter textPainter,
+    Size size,
+  ) {
+    var distanceBetweenPointAndLabel = 20.0;
+    var labelSpaceNeeded = (
+      textPainter.width / 2,
+      textPainter.height + distanceBetweenPointAndLabel
+    );
+    // if the label is too close to any edge, move it to the other side
+    // for dx constrain between distanceBetweenPointAndLabel and size.width - distanceBetweenPointAndLabel
+    return (
+      min(
+        max(
+          point.dx - labelSpaceNeeded.$1 / 2 - distanceBetweenPointAndLabel,
+          distanceBetweenPointAndLabel / 2,
+        ),
+        size.width - distanceBetweenPointAndLabel / 2,
+      ),
+      point.dy - labelSpaceNeeded.$2 < 0
+          ? point.dy + distanceBetweenPointAndLabel
+          : point.dy - labelSpaceNeeded.$2,
+    );
   }
 
   @override

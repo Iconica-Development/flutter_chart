@@ -1,0 +1,14 @@
+name: Iconica Flutter Caching Workflow
+# Workflow Caller version: 1.0.0
+
+on:
+  push:
+    branches:
+      [master, develop]
+  workflow_dispatch:
+
+jobs:
+  call-global-iconica-workflow:
+    uses: Iconica-Development/.github/.github/workflows/flutter-cache.yml@master
+    secrets: inherit
+    permissions: write-all

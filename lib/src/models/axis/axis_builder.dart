@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// [IndexedValueWidgetBuilder] is a typedef that allows you to customize the axis.
-typedef IndexedValueWidgetBuilder = Widget Function(
+typedef IndexedValueWidgetBuilder = (Widget widget, double? width) Function(
     BuildContext context, int index, double value);
 
 /// [AxisBuilder] is a class that allows you to customize the axis.
