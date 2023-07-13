@@ -64,14 +64,6 @@ class LineChartPainter extends CustomPainter {
             ? StrokeCap.round
             : StrokeCap.square;
 
-      final highlightedPaint = Paint()
-        ..color = line.theme.highlightedPointStyle.color ?? Colors.red
-        ..strokeWidth = line.theme.highlightedPointStyle.size ?? 5
-        ..strokeCap =
-            line.theme.highlightedPointStyle.shape == PointShape.circle
-                ? StrokeCap.round
-                : StrokeCap.square;
-
       final linePaint = Paint()
         ..color = line.theme.lineStyle.color
         ..strokeWidth = line.theme.lineStyle.strokeWidth
@@ -101,19 +93,6 @@ class LineChartPainter extends CustomPainter {
                   size.height, size.width, maxX, maxY))
               .toList(),
           pointPaint,
-        );
-      }
-
-      if (line.shouldDrawHighlightedPoint && line.highlightedPoint != null) {
-        final Offset translatedCoordinates = line.highlightedPoint!
-            .translatedCoordinatesWithMax(size.height, size.width, maxX, maxY);
-        final double pointX = translatedCoordinates.dx;
-        final double pointY = translatedCoordinates.dy;
-
-        canvas.drawPoints(
-          PointMode.points,
-          [Offset(pointX, pointY)],
-          highlightedPaint,
         );
       }
 
@@ -324,61 +303,83 @@ class LineChartPainter extends CustomPainter {
           );
         }
       }
+    }
 
-      if (line.highlightedPoint != null) {
-        final textPainter = TextPainter(
-          text: TextSpan(
-            text: line.highlightedPoint!.label,
-            style: line.theme.labelBoxStyle.textStyle,
-          ),
-          textDirection: TextDirection.ltr,
-        )..layout();
+    // draw the highlighted point and label
+    for (var line in lines.where((e) => e.highlightedPoint != null)) {
+      final textPainter = TextPainter(
+        text: TextSpan(
+          text: line.highlightedPoint!.label,
+          style: line.theme.labelBoxStyle.textStyle,
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
 
-        final Offset translatedCoordinates = line.highlightedPoint!
-            .translatedCoordinatesWithMax(size.height, size.width, maxX, maxY);
-        final double pointX = translatedCoordinates.dx;
-        final double pointY = translatedCoordinates.dy;
+      final Offset translatedCoordinates = line.highlightedPoint!
+          .translatedCoordinatesWithMax(size.height, size.width, maxX, maxY);
+      final double pointX = translatedCoordinates.dx;
+      final double pointY = translatedCoordinates.dy;
 
-        // Draw label box using labelBoxStyle
-        final labelBoxPaint = Paint()
-          ..color = line.theme.labelBoxStyle.backgroundColor
-          ..style = PaintingStyle.fill;
+      // Draw label box using labelBoxStyle
+      final labelBoxPaint = Paint()
+        ..color = line.theme.labelBoxStyle.backgroundColor
+        ..style = PaintingStyle.fill;
 
-        // Draw box with border
-        final labelBoxBorderPaint = Paint()
-          ..color = line.theme.labelBoxStyle.borderColor
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = line.theme.labelBoxStyle.borderWidth;
+      // Draw box with border
+      final labelBoxBorderPaint = Paint()
+        ..color = line.theme.labelBoxStyle.borderColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = line.theme.labelBoxStyle.borderWidth;
 
-        canvas.drawRect(
+      canvas.drawRect(
+        Rect.fromLTWH(
+          pointX - textPainter.width / 2 - 10,
+          pointY - textPainter.height - 30,
+          textPainter.width + 20,
+          textPainter.height + 10,
+        ),
+        labelBoxPaint,
+      );
+
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
           Rect.fromLTWH(
             pointX - textPainter.width / 2 - 10,
             pointY - textPainter.height - 30,
             textPainter.width + 20,
             textPainter.height + 10,
           ),
-          labelBoxPaint,
-        );
+          Radius.circular(line.theme.labelBoxStyle.borderRadius),
+        ),
+        labelBoxBorderPaint,
+      );
 
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(
-            Rect.fromLTWH(
-              pointX - textPainter.width / 2 - 10,
-              pointY - textPainter.height - 30,
-              textPainter.width + 20,
-              textPainter.height + 10,
-            ),
-            Radius.circular(line.theme.labelBoxStyle.borderRadius),
-          ),
-          labelBoxBorderPaint,
-        );
+      textPainter.paint(
+        canvas,
+        Offset(
+          pointX - textPainter.width / 2,
+          pointY - textPainter.height - 25,
+        ),
+      );
 
-        textPainter.paint(
-          canvas,
-          Offset(
-            pointX - textPainter.width / 2,
-            pointY - textPainter.height - 25,
-          ),
+      if (line.shouldDrawHighlightedPoint && line.highlightedPoint != null) {
+        final highlightedPaint = Paint()
+          ..color = line.theme.highlightedPointStyle.color ?? Colors.red
+          ..strokeWidth = line.theme.highlightedPointStyle.size ?? 5
+          ..strokeCap =
+              line.theme.highlightedPointStyle.shape == PointShape.circle
+                  ? StrokeCap.round
+                  : StrokeCap.square;
+
+        final Offset translatedCoordinates = line.highlightedPoint!
+            .translatedCoordinatesWithMax(size.height, size.width, maxX, maxY);
+        final double pointX = translatedCoordinates.dx;
+        final double pointY = translatedCoordinates.dy;
+
+        canvas.drawPoints(
+          PointMode.points,
+          [Offset(pointX, pointY)],
+          highlightedPaint,
         );
       }
     }

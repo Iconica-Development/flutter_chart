@@ -1,5 +1,7 @@
 ## 1.0.0
 - Change axisBuilders to Records with a Widget and an optional width
+- Labels are now always drawn at a position inside the chart
+- Labels are always rendered on top
 
 ## 0.0.3
 - Added option for second yAxis (right side)
