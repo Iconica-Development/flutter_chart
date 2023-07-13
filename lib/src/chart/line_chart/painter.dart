@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -314,11 +315,8 @@ class LineChartPainter extends CustomPainter {
         ),
         textDirection: TextDirection.ltr,
       )..layout();
-
       final Offset translatedCoordinates = line.highlightedPoint!
           .translatedCoordinatesWithMax(size.height, size.width, maxX, maxY);
-      final double pointX = translatedCoordinates.dx;
-      final double pointY = translatedCoordinates.dy;
 
       // Draw label box using labelBoxStyle
       final labelBoxPaint = Paint()
@@ -330,13 +328,15 @@ class LineChartPainter extends CustomPainter {
         ..color = line.theme.labelBoxStyle.borderColor
         ..style = PaintingStyle.stroke
         ..strokeWidth = line.theme.labelBoxStyle.borderWidth;
-
+      var labelPadding = 5.0;
+      var position =
+          getLabelPositionAndSize(translatedCoordinates, textPainter, size);
       canvas.drawRect(
         Rect.fromLTWH(
-          pointX - textPainter.width / 2 - 10,
-          pointY - textPainter.height - 30,
-          textPainter.width + 20,
-          textPainter.height + 10,
+          position.$1,
+          position.$2,
+          textPainter.width + labelPadding * 2,
+          textPainter.height + labelPadding * 2,
         ),
         labelBoxPaint,
       );
@@ -344,10 +344,10 @@ class LineChartPainter extends CustomPainter {
       canvas.drawRRect(
         RRect.fromRectAndRadius(
           Rect.fromLTWH(
-            pointX - textPainter.width / 2 - 10,
-            pointY - textPainter.height - 30,
-            textPainter.width + 20,
-            textPainter.height + 10,
+            position.$1,
+            position.$2,
+            textPainter.width + labelPadding * 2,
+            textPainter.height + labelPadding * 2,
           ),
           Radius.circular(line.theme.labelBoxStyle.borderRadius),
         ),
@@ -357,8 +357,8 @@ class LineChartPainter extends CustomPainter {
       textPainter.paint(
         canvas,
         Offset(
-          pointX - textPainter.width / 2,
-          pointY - textPainter.height - 25,
+          position.$1 + labelPadding,
+          position.$2 + labelPadding,
         ),
       );
 
@@ -383,6 +383,32 @@ class LineChartPainter extends CustomPainter {
         );
       }
     }
+  }
+
+  (double left, double top) getLabelPositionAndSize(
+    Offset point,
+    TextPainter textPainter,
+    Size size,
+  ) {
+    var distanceBetweenPointAndLabel = 20.0;
+    var labelSpaceNeeded = (
+      textPainter.width / 2,
+      textPainter.height + distanceBetweenPointAndLabel
+    );
+    // if the label is too close to any edge, move it to the other side
+    // for dx constrain between distanceBetweenPointAndLabel and size.width - distanceBetweenPointAndLabel
+    return (
+      min(
+        max(
+          point.dx - labelSpaceNeeded.$1 / 2 - distanceBetweenPointAndLabel,
+          distanceBetweenPointAndLabel / 2,
+        ),
+        size.width - distanceBetweenPointAndLabel / 2,
+      ),
+      point.dy - labelSpaceNeeded.$2 < 0
+          ? point.dy + distanceBetweenPointAndLabel
+          : point.dy - labelSpaceNeeded.$2,
+    );
   }
 
   @override
