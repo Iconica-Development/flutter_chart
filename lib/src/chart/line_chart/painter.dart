@@ -329,8 +329,8 @@ class LineChartPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = line.theme.labelBoxStyle.borderWidth;
       var labelPadding = 5.0;
-      var position =
-          getLabelPositionAndSize(translatedCoordinates, textPainter, size);
+      var position = getLabelPositionAndSize(
+          translatedCoordinates, textPainter, size, labelPadding);
       canvas.drawRect(
         Rect.fromLTWH(
           position.$1,
@@ -389,6 +389,7 @@ class LineChartPainter extends CustomPainter {
     Offset point,
     TextPainter textPainter,
     Size size,
+    double labelPadding,
   ) {
     var distanceBetweenPointAndLabel = 20.0;
     var labelSpaceNeeded = (
@@ -400,7 +401,7 @@ class LineChartPainter extends CustomPainter {
     return (
       min(
         max(
-          point.dx - labelSpaceNeeded.$1 / 2 - distanceBetweenPointAndLabel,
+          point.dx - labelSpaceNeeded.$1 - labelPadding * 2,
           distanceBetweenPointAndLabel / 2,
         ),
         size.width - distanceBetweenPointAndLabel / 2,
