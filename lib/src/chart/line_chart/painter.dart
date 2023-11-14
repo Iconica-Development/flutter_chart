@@ -401,10 +401,10 @@ class LineChartPainter extends CustomPainter {
     return (
       min(
         max(
-          point.dx - labelSpaceNeeded.$1 - labelPadding * 2,
+          point.dx - labelSpaceNeeded.$1 - labelPadding,
           distanceBetweenPointAndLabel / 2,
         ),
-        size.width - distanceBetweenPointAndLabel / 2,
+        size.width - (labelSpaceNeeded.$1 + labelPadding) * 2,
       ),
       point.dy - labelSpaceNeeded.$2 < 0
           ? point.dy + distanceBetweenPointAndLabel
