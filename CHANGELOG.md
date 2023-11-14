@@ -1,3 +1,7 @@
+## 1.0.1
+- Labels are now properly centered above the selected point. 
+- The label is properly shown if it overflows at the right side of the chart.
+
 ## 1.0.0
 - Change axisBuilders to Records with a Widget and an optional width
 - Labels are now always drawn at a position inside the chart
