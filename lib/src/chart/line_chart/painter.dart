@@ -5,6 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chart/flutter_chart.dart';
 
 class LineChartPainter extends CustomPainter {
+  /// Constructs a `LineChartPainter`.
+  ///
+  /// [lines]: The list of lines to be drawn on the chart.
+  /// [rasterStyle]: The style configuration for the chart's raster.
+  /// [maxX]: The maximum value for the X-axis.
+  /// [maxY]: The maximum value for the Y-axis.
+  /// [shouldDrawRaster]: Whether to draw the chart's raster.
+  /// [horizontalGap]: The horizontal gap between raster lines.
+  /// [verticalGap]: The vertical gap between raster lines.
   const LineChartPainter({
     required this.lines,
     required this.rasterStyle,

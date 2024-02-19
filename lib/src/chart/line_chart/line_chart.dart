@@ -6,6 +6,16 @@ import 'package:flutter_chart/flutter_chart.dart';
 import 'package:flutter_chart/src/chart/line_chart/painter.dart';
 
 class LineChart extends StatefulWidget {
+  /// Constructs a `LineChart` widget.
+  ///
+  /// [lines]: The list of lines to be displayed on the chart.
+  /// [height]: The height of the chart.
+  /// [width]: The width of the chart.
+  /// [chartTheme]: The theme configuration for the chart. Defaults to [ChartTheme()].
+  /// [maxX]: The maximum value for the X-axis.
+  /// [maxY]: The maximum value for the Y-axis.
+  /// [shouldDrawRaster]: Whether to draw raster on the chart. Defaults to `true`.
+  /// [labelDetectionZone]: The zone around data points where hover events are detected. Defaults to `10`.
   const LineChart({
     required this.lines,
     required this.height,
